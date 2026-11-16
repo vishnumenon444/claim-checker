@@ -1,5 +1,10 @@
 import re
+import json
 import streamlit as st
+from pypdf import PdfReader
+from google import genai
+
+MODEL = "gemini-2.5-flash"
 
 st.title("Patent Claim Checker")
 st.write("Use public patent text only while testing.")
@@ -46,7 +51,7 @@ def check_claim(text, introduced):
     return list(dict.fromkeys(problems))
 
 
-tab1, tab2 = st.tabs(["Antecedent basis", "Reference numerals"])
+tab1, tab2, tab3 = st.tabs(["Antecedent basis", "Reference numerals", "Office action summary"])
 
 with tab1:
     claims_text = st.text_area("Claims (numbered 1., 2., 3. ...)", height=300, key="claims1")
@@ -86,3 +91,44 @@ with tab2:
                     st.success(f"Numeral {num} ({names}) found in the description")
                 if len(claim_nums[num]) > 1:
                     st.warning(f"Numeral {num} is named differently in the claims: {names}")
+
+with tab3:
+    st.warning("Free AI tiers may use your inputs to improve their models. "
+               "Upload PUBLIC office actions only.")
+    pdf = st.file_uploader("Upload an office action (PDF)", type="pdf")
+    if pdf and st.button("Summarize office action"):
+        reader = PdfReader(pdf)
+        text = "\n".join((p.extract_text() or "") for p in reader.pages)
+        if len(text.strip()) < 200:
+            st.error("I could not read text from this PDF. It may be a scanned image.")
+        else:
+            prompt = (
+                "You are helping a patent attorney. Read this USPTO office action and "
+                "return ONLY JSON with this shape: "
+                '{"application_number": "", "summary": "", '
+                '"rejections": [{"type": "", "claims": "", "references": "", "reasoning": ""}], '
+                '"objections": ["..."]}. '
+                "All values must be plain strings. Use only what the examiner wrote. "
+                "Do not invent anything and do not write arguments. "
+                "If something is missing, use an empty string.\n\n"
+                "OFFICE ACTION TEXT:\n" + text[:60000]
+            )
+            try:
+                client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+                resp = client.models.generate_content(
+                    model=MODEL,
+                    contents=prompt,
+                    config={"response_mime_type": "application/json"},
+                )
+                data = json.loads(resp.text)
+                st.subheader("Summary")
+                st.write(data.get("application_number", ""))
+                st.write(data.get("summary", ""))
+                st.subheader("Rejections")
+                st.table(data.get("rejections", []))
+                st.subheader("Objections")
+                for o in data.get("objections", []):
+                    st.write("- " + str(o))
+                st.caption("AI-generated. Always check against the original office action.")
+            except Exception as e:
+                st.error(f"Something went wrong: {e}")
