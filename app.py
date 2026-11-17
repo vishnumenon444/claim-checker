@@ -3,12 +3,80 @@ import json
 import streamlit as st
 from pypdf import PdfReader
 from google import genai
+
 st.set_page_config(page_title="ClaimCheck for Patent Attorneys", page_icon="⚖️", layout="wide")
+
 MODEL = "gemini-3.8-flash"
 
-st.title("Patent Claim Checker")
-st.write("Use public patent text only while testing.")
+# ---------- Look and feel (colors, banner, cards) ----------
+CSS = (
+    "<style>"
+    ".block-container{padding-top:1.5rem;max-width:1200px;}"
+    ".hero{background:linear-gradient(120deg,#0B2545 0%,#13498A 55%,#0B7285 100%);"
+    "border-radius:18px;padding:28px 34px;display:flex;align-items:center;"
+    "justify-content:space-between;gap:20px;color:white;margin-bottom:18px;"
+    "box-shadow:0 6px 18px rgba(11,37,69,0.25);}"
+    ".hero h1{color:white;margin:0 0 6px 0;font-size:2.1rem;line-height:1.15;}"
+    ".hero p{color:#D6E8F5;margin:0;font-size:1.02rem;}"
+    ".badge{display:inline-block;background:#F59F00;color:#2B1B00;font-weight:700;"
+    "font-size:0.78rem;padding:3px 10px;border-radius:20px;margin-bottom:10px;}"
+    ".cards{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap;}"
+    ".card{flex:1;min-width:220px;border-radius:14px;padding:16px 18px;color:#102A43;}"
+    ".card h4{margin:0 0 6px 0;font-size:1.05rem;}"
+    ".card p{margin:0;font-size:0.9rem;}"
+    ".c1{background:#E3F2FD;border-left:6px solid #1C7ED6;}"
+    ".c2{background:#E6FCF5;border-left:6px solid #0CA678;}"
+    ".c3{background:#FFF4E6;border-left:6px solid #F76707;}"
+    "button[data-baseweb='tab']{font-size:1.02rem;font-weight:600;}"
+    ".stButton>button{background:linear-gradient(90deg,#13498A,#0B7285);color:white;"
+    "border:0;border-radius:10px;padding:0.55rem 1.4rem;font-weight:600;}"
+    ".stButton>button:hover{filter:brightness(1.12);color:white;}"
+    ".footer{text-align:center;color:#6B7C8F;font-size:0.82rem;margin-top:30px;}"
+    "@media (max-width:700px){.hero{flex-direction:column;text-align:center;}}"
+    "</style>"
+)
 
+SVG = (
+    "<svg width='190' height='130' viewBox='0 0 190 130' xmlns='http://www.w3.org/2000/svg'>"
+    "<rect x='20' y='12' width='84' height='106' rx='8' fill='white'/>"
+    "<rect x='20' y='12' width='84' height='20' rx='8' fill='#F59F00'/>"
+    "<text x='62' y='27' font-size='11' font-weight='bold' fill='#2B1B00' text-anchor='middle'>PATENT</text>"
+    "<rect x='32' y='44' width='60' height='5' rx='2' fill='#9FB7CC'/>"
+    "<rect x='32' y='56' width='48' height='5' rx='2' fill='#9FB7CC'/>"
+    "<rect x='32' y='68' width='56' height='5' rx='2' fill='#9FB7CC'/>"
+    "<rect x='32' y='80' width='40' height='5' rx='2' fill='#9FB7CC'/>"
+    "<circle cx='78' cy='101' r='9' fill='none' stroke='#0CA678' stroke-width='3'/>"
+    "<path d='M73 101 l4 4 l7 -8' fill='none' stroke='#0CA678' stroke-width='3' stroke-linecap='round'/>"
+    "<circle cx='140' cy='45' r='22' fill='#FFE066'/>"
+    "<rect x='132' y='64' width='16' height='10' rx='3' fill='#CED4DA'/>"
+    "<path d='M140 30 v-8 M123 36 l-6 -5 M157 36 l6 -5' stroke='#FFE066' stroke-width='3' stroke-linecap='round'/>"
+    "<circle cx='146' cy='100' r='15' fill='none' stroke='#74C0FC' stroke-width='8' stroke-dasharray='7 5'/>"
+    "<circle cx='146' cy='100' r='5' fill='#74C0FC'/>"
+    "<circle cx='172' cy='84' r='9' fill='none' stroke='#63E6BE' stroke-width='5' stroke-dasharray='5 4'/>"
+    "</svg>"
+)
+
+HERO = (
+    "<div class='hero'><div>"
+    "<span class='badge'>FREE BETA</span>"
+    "<h1>ClaimCheck for Patent Attorneys</h1>"
+    "<p>Catch claim errors early and understand office actions faster. "
+    "Use public patent text only while testing.</p></div>" + SVG + "</div>"
+)
+
+CARDS = (
+    "<div class='cards'>"
+    "<div class='card c1'><h4>📝 Antecedent basis</h4><p>Finds \"the\" or \"said\" terms that were never introduced with \"a\" or \"an\".</p></div>"
+    "<div class='card c2'><h4>🔢 Reference numerals</h4><p>Matches numerals in the claims with the description.</p></div>"
+    "<div class='card c3'><h4>📄 Office action summary</h4><p>Turns an examiner's letter into a clear table of rejections.</p></div>"
+    "</div>"
+)
+
+st.markdown(CSS, unsafe_allow_html=True)
+st.markdown(HERO, unsafe_allow_html=True)
+st.markdown(CARDS, unsafe_allow_html=True)
+
+# ---------- Checking logic (unchanged) ----------
 STOP = set("""of to for in on at by with from and or that which wherein comprising
 comprises having has is are be being configured coupled connected adapted operable
 arranged positioned disposed mounted attached when while whereby so as than into
@@ -51,7 +119,7 @@ def check_claim(text, introduced):
     return list(dict.fromkeys(problems))
 
 
-tab1, tab2, tab3 = st.tabs(["Antecedent basis", "Reference numerals", "Office action summary"])
+tab1, tab2, tab3 = st.tabs(["📝 Antecedent basis", "🔢 Reference numerals", "📄 Office action summary"])
 
 with tab1:
     claims_text = st.text_area("Claims (numbered 1., 2., 3. ...)", height=300, key="claims1")
@@ -132,3 +200,6 @@ with tab3:
                 st.caption("AI-generated. Always check against the original office action.")
             except Exception as e:
                 st.error(f"Something went wrong: {e}")
+
+st.markdown("<div class='footer'>ClaimCheck is a drafting aid, not legal advice. "
+            "Always review results yourself.</div>", unsafe_allow_html=True)
