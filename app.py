@@ -125,7 +125,7 @@ def check_claim(text, introduced):
     return list(dict.fromkeys(problems))
 
 
-tab1, tab2, tab3 = st.tabs(["📝 Antecedent basis", "🔢 Reference numerals", "📄 Office action summary"])
+tab1, tab2, tab3, tab4 = st.tabs(["📝 Antecedent basis", "🔢 Reference numerals", "📄 Office action summary", "🔒 Privacy"])
 
 with tab1:
     claims_text = st.text_area("Claims (numbered 1., 2., 3. ...)", height=300, key="claims1")
@@ -209,3 +209,17 @@ with tab3:
 
 st.markdown("<div class='footer'>ClaimCheck is a drafting aid, not legal advice. "
             "Always review results yourself.</div>", unsafe_allow_html=True)
+with tab4:
+    st.subheader("Privacy and confidentiality")
+    st.markdown("""
+**This tool is in free beta. Please use public patent documents only.**
+
+- **Antecedent basis and Reference numerals tabs:** your text is checked by rules inside this app. It is **not sent to any AI service** and this app does **not save it**.
+- **Office action summary tab:** the text of the PDF you upload **is sent to Google's Gemini API** to produce the summary. During beta this uses a free tier, where the provider may use inputs to improve its models. **Do not upload confidential or unpublished client material.**
+- This app does not store uploaded files or results, and has no user accounts.
+- The app runs on Streamlit's hosting, which may keep standard technical logs.
+- Before real client matters are supported, the AI step will move to a paid API whose terms say inputs are not used for training. This page will be updated when that happens.
+- Results are a drafting aid, not legal advice. Always check them yourself.
+
+Questions? Contact: your-email@example.com
+""")
