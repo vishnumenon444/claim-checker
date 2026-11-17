@@ -3,7 +3,7 @@ import json
 import streamlit as st
 from pypdf import PdfReader
 from google import genai
-
+st.set_page_config(page_title="ClaimCheck for Patent Attorneys", page_icon="⚖️", layout="wide")
 MODEL = "gemini-3.8-flash"
 
 st.title("Patent Claim Checker")
