@@ -4,7 +4,7 @@ import streamlit as st
 from pypdf import PdfReader
 from google import genai
 
-MODEL = "gemini-2.5-flash"
+MODEL = "gemini-3.8-flash"
 
 st.title("Patent Claim Checker")
 st.write("Use public patent text only while testing.")
