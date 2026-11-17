@@ -221,5 +221,5 @@ with tab4:
 - Before real client matters are supported, the AI step will move to a paid API whose terms say inputs are not used for training. This page will be updated when that happens.
 - Results are a drafting aid, not legal advice. Always check them yourself.
 
-Questions? Contact: your-email@example.com
+Questions? Contact: vishnuvmenon44@gmail.com
 """)
