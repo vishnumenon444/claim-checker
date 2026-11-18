@@ -192,11 +192,27 @@ with tab3:
                 "DOCUMENT TEXT:\n" + text[:60000]
             )
             data = None
+            used_model = ""
             last_error = None
             client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+
+            # Your main model first, then other available "flash" models as backups
+            models = [MODEL]
+            try:
+                skip = ["image", "tts", "live", "audio", "embed", "robotics", "computer"]
+                for m in client.models.list():
+                    name = m.name.replace("models/", "")
+                    actions = getattr(m, "supported_actions", None) or ["generateContent"]
+                    if ("flash" in name and "generateContent" in actions
+                            and not any(s in name for s in skip) and name not in models):
+                        models.append(name)
+            except Exception:
+                pass
+            models = models[:4]
+
             with st.spinner("Reading the document. If the AI is busy, this can take up to a minute..."):
-                for model_name in [MODEL]:
-                    for attempt in range(3):
+                for round_number in range(2):
+                    for model_name in models:
                         try:
                             resp = client.models.generate_content(
                                 model=model_name,
@@ -204,16 +220,15 @@ with tab3:
                                 config={"response_mime_type": "application/json"},
                             )
                             data = json.loads(resp.text)
+                            used_model = model_name
                             break
                         except Exception as e:
                             last_error = e
-                            msg = str(e)
-                            if "503" in msg or "UNAVAILABLE" in msg or "429" in msg:
-                                time.sleep(4 * (attempt + 1))
-                            else:
-                                break
+                            continue
                     if data is not None:
                         break
+                    time.sleep(5)
+
             if data is None:
                 st.error("The AI service is busy or unavailable right now. "
                          "Please try again in a few minutes.")
@@ -227,7 +242,7 @@ with tab3:
                 st.subheader("Objections")
                 for o in data.get("objections", []):
                     st.write("- " + str(o))
-                st.caption("AI-generated. Always check against the original document.")
+                st.caption(f"AI-generated using {used_model}. Always check against the original document.")
 st.markdown("<div class='footer'>ClaimCheck is a drafting aid, not legal advice. "
             "Always review results yourself.</div>", unsafe_allow_html=True)
 with tab4:
