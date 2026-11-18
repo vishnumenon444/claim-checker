@@ -169,7 +169,7 @@ with tab2:
 with tab3:
     st.warning("Free AI tiers may use your inputs to improve their models. "
                "Upload PUBLIC office actions only.")
-    pdf = st.file_uploader("Upload an office action (PDF)", type="pdf")
+    pdf = st.file_uploader("Upload an office action or FER (PDF)", type="pdf")
     if pdf and st.button("Summarize office action"):
         reader = PdfReader(pdf)
         text = "\n".join((p.extract_text() or "") for p in reader.pages)
@@ -177,24 +177,47 @@ with tab3:
             st.error("I could not read text from this PDF. It may be a scanned image.")
         else:
             prompt = (
-                "You are helping a patent attorney. Read this USPTO office action and "
+                "You are helping a patent attorney. Read this patent examination document "
+                "(a USPTO office action or an Indian First Examination Report) and "
                 "return ONLY JSON with this shape: "
                 '{"application_number": "", "summary": "", '
                 '"rejections": [{"type": "", "claims": "", "references": "", "reasoning": ""}], '
                 '"objections": ["..."]}. '
+                "In 'type' put the legal ground, such as 102, 103, 112, or the Indian Patents Act "
+                "section (for example Section 3(k), 2(1)(ja), 10). "
                 "All values must be plain strings. Use only what the examiner wrote. "
                 "Do not invent anything and do not write arguments. "
                 "If something is missing, use an empty string.\n\n"
-                "OFFICE ACTION TEXT:\n" + text[:60000]
+                "DOCUMENT TEXT:\n" + text[:60000]
             )
-            try:
-                client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-                resp = client.models.generate_content(
-                    model=MODEL,
-                    contents=prompt,
-                    config={"response_mime_type": "application/json"},
-                )
-                data = json.loads(resp.text)
+            data = None
+            last_error = None
+            client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+            with st.spinner("Reading the document. If the AI is busy, this can take up to a minute..."):
+                for model_name in [MODEL, "gemini-flash-latest"]:
+                    for attempt in range(3):
+                        try:
+                            resp = client.models.generate_content(
+                                model=model_name,
+                                contents=prompt,
+                                config={"response_mime_type": "application/json"},
+                            )
+                            data = json.loads(resp.text)
+                            break
+                        except Exception as e:
+                            last_error = e
+                            msg = str(e)
+                            if "503" in msg or "UNAVAILABLE" in msg or "429" in msg:
+                                time.sleep(4 * (attempt + 1))
+                            else:
+                                break
+                    if data is not None:
+                        break
+            if data is None:
+                st.error("The AI service is busy or unavailable right now. "
+                         "Please try again in a few minutes.")
+                st.caption(f"Technical detail: {last_error}")
+            else:
                 st.subheader("Summary")
                 st.write(data.get("application_number", ""))
                 st.write(data.get("summary", ""))
@@ -203,10 +226,7 @@ with tab3:
                 st.subheader("Objections")
                 for o in data.get("objections", []):
                     st.write("- " + str(o))
-                st.caption("AI-generated. Always check against the original office action.")
-            except Exception as e:
-                st.error(f"Something went wrong: {e}")
-
+                st.caption("AI-generated. Always check against the original document.")
 st.markdown("<div class='footer'>ClaimCheck is a drafting aid, not legal advice. "
             "Always review results yourself.</div>", unsafe_allow_html=True)
 with tab4:
