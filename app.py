@@ -1,5 +1,6 @@
 import re
 import json
+import time
 import streamlit as st
 from pypdf import PdfReader
 from google import genai
