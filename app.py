@@ -195,7 +195,7 @@ with tab3:
             last_error = None
             client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
             with st.spinner("Reading the document. If the AI is busy, this can take up to a minute..."):
-                for model_name in [MODEL, "gemini-flash-latest"]:
+                for model_name in [MODEL]:
                     for attempt in range(3):
                         try:
                             resp = client.models.generate_content(
