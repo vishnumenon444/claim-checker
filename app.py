@@ -243,11 +243,50 @@ with tab3:
                 for o in data.get("objections", []):
                     st.write("- " + str(o))
                 st.caption(f"AI-generated using {used_model}. Always check against the original document.")
+                st.link_button("💬 Give feedback (3 minutes)", "https://forms.gle/T4ChooFoRWPUQiZt5")
 st.markdown("<div class='footer'>ClaimCheck is a drafting aid, not legal advice. "
             "Always review results yourself.</div>", unsafe_allow_html=True)
 with tab4:
-    st.subheader("Privacy and confidentiality")
+   with tab4:
+    st.subheader("Privacy Policy and Terms of Use")
+    st.caption("Last updated: November 24, 2026")
     st.markdown("""
+**ClaimCheck is in free beta. Please use public patent documents only. Do not enter or upload confidential, unpublished or client-privileged material.**
+
+### 1. What this tool does
+ClaimCheck helps check patent claims and summarize examination reports. It is a drafting aid only. It is not legal advice, and no attorney-client relationship is created by using it.
+
+### 2. What happens to the text you enter
+- **Antecedent basis and Reference numerals tabs:** your text is checked by rules inside this app. It is not sent to any AI service, and this app does not save it.
+- **Office action summary tab:** the text of the PDF you upload is sent to Google's Gemini API to produce the summary. During beta this uses a free service tier, under which Google may use inputs to improve its products. For this reason, upload only public documents.
+
+### 3. What this app stores
+- This app has no user accounts and does not save your pasted text, uploaded files or summaries.
+- The hosting service (Streamlit Community Cloud) may keep standard technical logs and basic view counts.
+- This app does not use advertising or tracking cookies of its own.
+
+### 4. Feedback form
+If you fill in the feedback form, your name, email, role, answers and any optional details you give are stored in Google Forms and a private Google Sheet. I use them only to improve ClaimCheck and to contact you if you have agreed to be contacted. I do not sell or share this information. You may quote-permission answers only if you have said yes on the form.
+
+### 5. Paid plans (when available)
+If a paid Pro plan is offered, payments are handled by a third-party payment provider. This app does not store your card details. Before any paid plan launches, this policy will be updated to describe how the AI step handles your documents.
+
+### 6. Third parties
+ClaimCheck relies on Streamlit (hosting), Google (Gemini API and Google Forms) and, later, a payment provider. Their own privacy policies apply to the data they handle.
+
+### 7. Your choices
+You can ask me to delete your feedback-form details at any time by email. If you uploaded something confidential by mistake, tell me at once so I can help you with next steps.
+
+### 8. Accuracy and responsibility
+Results can be wrong or incomplete, especially AI-generated summaries. Always check them against the original document. ClaimCheck is provided "as is" without warranty, and you are responsible for your own legal and filing decisions.
+
+### 9. Changes
+I may update this policy as the tool changes. The date at the top shows the latest version.
+
+### 10. Contact
+Questions or deletion requests: vishnuvmenon44@gmail.com
+""")
+    st.link_button("💬 Give feedback (3 minutes)", "PASTE-YOUR-FORM-LINK-HERE")
 **This tool is in free beta. Please use public patent documents only.**
 
 - **Antecedent basis and Reference numerals tabs:** your text is checked by rules inside this app. It is **not sent to any AI service** and this app does **not save it**.
