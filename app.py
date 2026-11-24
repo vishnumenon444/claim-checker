@@ -9,6 +9,10 @@ st.set_page_config(page_title="ClaimCheck for Patent Attorneys", page_icon="⚖�
 
 MODEL = "gemini-3.8-flash"
 
+# Feedback form links (change here if you want to use a different form)
+FEEDBACK_URL_APP = "https://forms.gle/T4ChooFoRWPUQiZt5"
+FEEDBACK_URL_PRIVACY = "https://forms.gle/7VxBbezkuuDiEWTs9"
+
 # ---------- Look and feel: black and gold ----------
 CSS = (
     "<style>"
@@ -83,7 +87,7 @@ st.markdown(CSS, unsafe_allow_html=True)
 st.markdown(HERO, unsafe_allow_html=True)
 st.markdown(CARDS, unsafe_allow_html=True)
 
-# ---------- Checking logic (unchanged) ----------
+# ---------- Checking logic ----------
 STOP = set("""of to for in on at by with from and or that which wherein comprising
 comprises having has is are be being configured coupled connected adapted operable
 arranged positioned disposed mounted attached when while whereby so as than into
@@ -188,6 +192,10 @@ with tab3:
                 "section (for example Section 3(k), 2(1)(ja), 10). "
                 "All values must be plain strings. Use only what the examiner wrote. "
                 "Do not invent anything and do not write arguments. "
+                "Do not shorten or merge items. Keep every deadline or time limit, every numbered "
+                "sub-point, and every requirement about copies, format, page or line numbers. "
+                "Write each objection as one string that starts with its heading, for example "
+                "'Power of Attorney: (1) ... (2) ...'. "
                 "If something is missing, use an empty string.\n\n"
                 "DOCUMENT TEXT:\n" + text[:60000]
             )
@@ -243,9 +251,8 @@ with tab3:
                 for o in data.get("objections", []):
                     st.write("- " + str(o))
                 st.caption(f"AI-generated using {used_model}. Always check against the original document.")
-                st.link_button("💬 Give feedback (3 minutes)", "https://forms.gle/T4ChooFoRWPUQiZt5")
-st.markdown("<div class='footer'>ClaimCheck is a drafting aid, not legal advice. "
-            "Always review results yourself.</div>", unsafe_allow_html=True)
+                st.link_button("💬 Give feedback (3 minutes)", FEEDBACK_URL_APP)
+
 with tab4:
     st.subheader("Privacy Policy and Terms of Use")
     st.caption("Last updated: November 24, 2026")
@@ -265,7 +272,7 @@ ClaimCheck helps check patent claims and summarize examination reports. It is a 
 - This app does not use advertising or tracking cookies of its own.
 
 ### 4. Feedback form
-If you fill in the feedback form, your name, email, role, answers and any optional details you give are stored in Google Forms and a private Google Sheet. I use them only to improve ClaimCheck and to contact you if you have agreed to be contacted. I do not sell or share this information. You may quote-permission answers only if you have said yes on the form.
+If you fill in the feedback form, your name, email, role, answers and any optional details you give are stored in Google Forms and a private Google Sheet. I use them only to improve ClaimCheck and to contact you if you have agreed to be contacted. I do not sell or share this information. I will quote your feedback, anonymously, only if you said yes to that on the form.
 
 ### 5. Paid plans (when available)
 If a paid Pro plan is offered, payments are handled by a third-party payment provider. This app does not store your card details. Before any paid plan launches, this policy will be updated to describe how the AI step handles your documents.
@@ -285,15 +292,7 @@ I may update this policy as the tool changes. The date at the top shows the late
 ### 10. Contact
 Questions or deletion requests: vishnuvmenon44@gmail.com
 """)
-    st.link_button("💬 Give feedback (2 minutes)", "https://forms.gle/7VxBbezkuuDiEWTs9")
-**This tool is in free beta. Please use public patent documents only.**
+    st.link_button("💬 Give feedback (2 minutes)", FEEDBACK_URL_PRIVACY)
 
-- **Antecedent basis and Reference numerals tabs:** your text is checked by rules inside this app. It is **not sent to any AI service** and this app does **not save it**.
-- **Office action summary tab:** the text of the PDF you upload **is sent to Google's Gemini API** to produce the summary. During beta this uses a free tier, where the provider may use inputs to improve its models. **Do not upload confidential or unpublished client material.**
-- This app does not store uploaded files or results, and has no user accounts.
-- The app runs on Streamlit's hosting, which may keep standard technical logs.
-- Before real client matters are supported, the AI step will move to a paid API whose terms say inputs are not used for training. This page will be updated when that happens.
-- Results are a drafting aid, not legal advice. Always check them yourself.
-
-Questions? Contact: vishnuvmenon44@gmail.com
-""")
+st.markdown("<div class='footer'>ClaimCheck is a drafting aid, not legal advice. "
+            "Always review results yourself.</div>", unsafe_allow_html=True)
