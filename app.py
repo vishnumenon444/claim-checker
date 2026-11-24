@@ -247,7 +247,6 @@ with tab3:
 st.markdown("<div class='footer'>ClaimCheck is a drafting aid, not legal advice. "
             "Always review results yourself.</div>", unsafe_allow_html=True)
 with tab4:
-   with tab4:
     st.subheader("Privacy Policy and Terms of Use")
     st.caption("Last updated: November 24, 2026")
     st.markdown("""
