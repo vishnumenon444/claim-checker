@@ -86,6 +86,14 @@ CARDS = (
 st.markdown(CSS, unsafe_allow_html=True)
 st.markdown(HERO, unsafe_allow_html=True)
 st.markdown(CARDS, unsafe_allow_html=True)
+st.link_button("💬 Give feedback (3 minutes): tell me what's wrong or missing", FEEDBACK_URL_APP)
+st.markdown(
+    f"<a href='{FEEDBACK_URL_APP}' target='_blank' rel='noopener' "
+    "style='position:fixed;left:18px;bottom:18px;z-index:9999;background:#111;color:#E6C34A;"
+    "border:1px solid #C9A227;padding:10px 18px;border-radius:30px;font-weight:600;"
+    "text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,0.3);'>💬 Feedback</a>",
+    unsafe_allow_html=True,
+)
 
 # ---------- Checking logic ----------
 STOP = set("""of to for in on at by with from and or that which wherein comprising
