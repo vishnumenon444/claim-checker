@@ -285,7 +285,7 @@ I may update this policy as the tool changes. The date at the top shows the late
 ### 10. Contact
 Questions or deletion requests: vishnuvmenon44@gmail.com
 """)
-    st.link_button("💬 Give feedback (3 minutes)", "PASTE-YOUR-FORM-LINK-HERE")
+    st.link_button("💬 Give feedback (2 minutes)", "https://forms.gle/7VxBbezkuuDiEWTs9")
 **This tool is in free beta. Please use public patent documents only.**
 
 - **Antecedent basis and Reference numerals tabs:** your text is checked by rules inside this app. It is **not sent to any AI service** and this app does **not save it**.
